@@ -6,6 +6,8 @@ import com.ezra.elevator.model.Elevator;
 import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +16,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ElevatorService {
-    @Autowired
-    ElevatorRepository elevatorRepository;
 
-    @Autowired
-    ElevatorInfoRepository elevatorInfoRepository;
+    private final ElevatorRepository elevatorRepository;
 
-    GeneralResponse generalResponse=new GeneralResponse();
+
+    private final ElevatorInfoRepository elevatorInfoRepository;
+
+    GeneralResponse generalResponse= new GeneralResponse();
 
     public ResponseEntity<?> addElevator(AddElevatorRequest addElevatorRequest){
 
@@ -38,6 +42,7 @@ public class ElevatorService {
             elevatorInfo.setEventTime(LocalDateTime.now());
             elevatorInfo.setElevator(newElevator);
             elevatorInfoRepository.save(elevatorInfo);
+            generalResponse.setPayload(elevator);
             generalResponse.setStatus(HttpStatus.CREATED);
             generalResponse.setDescription("Elevator added Successfully");
                 return new ResponseEntity<>(generalResponse, HttpStatus.CREATED);

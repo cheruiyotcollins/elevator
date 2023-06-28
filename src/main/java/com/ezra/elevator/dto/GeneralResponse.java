@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GeneralResponse {
+    Object payload;
     private HttpStatus status;
     private String description;
 

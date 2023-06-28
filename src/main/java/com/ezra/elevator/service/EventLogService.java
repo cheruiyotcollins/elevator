@@ -1,6 +1,8 @@
 package com.ezra.elevator.service;
 
 import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.model.Elevator;
+import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.model.EventLog;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EventLogService {
@@ -27,7 +31,18 @@ public class EventLogService {
         return new ResponseEntity<>(eventLogRepository.findAll(), HttpStatus.ACCEPTED);
     }
     public ResponseEntity<?> findAllEventsPerElevator(long elevatorId){
-        return new ResponseEntity<>(eventLogRepository.findByElevatorInfo(elevatorInfoRepository.findByElevator(elevatorRepository.findById(elevatorId).get()).get()), HttpStatus.ACCEPTED);
+        if(!elevatorRepository.existsById(elevatorId)){
+            generalResponse.setStatus(HttpStatus.NOT_FOUND);
+            generalResponse.setDescription("Elevator with that id not found");
+            return new ResponseEntity<>(generalResponse,HttpStatus.NOT_FOUND);
+        }
+        Elevator elevator=elevatorRepository.findById(elevatorId).get();
+
+        ElevatorInfo elevatorInfo=elevatorInfoRepository.findByElevator(elevator).get();
+
+        List<EventLog> eventLog=eventLogRepository.findByElevatorInfo(elevatorInfo);
+
+        return new ResponseEntity<>(eventLog, HttpStatus.ACCEPTED);
     }
     public ResponseEntity<?> findAllEventsPerLogId(long id){
         if(!eventLogRepository.existsById(id)){

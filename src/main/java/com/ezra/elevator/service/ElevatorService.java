@@ -3,6 +3,8 @@ package com.ezra.elevator.service;
 import com.ezra.elevator.dto.AddElevatorRequest;
 import com.ezra.elevator.dto.GeneralResponse;
 import com.ezra.elevator.model.Elevator;
+import com.ezra.elevator.model.ElevatorInfo;
+import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,19 +17,29 @@ import java.time.LocalDateTime;
 public class ElevatorService {
     @Autowired
     ElevatorRepository elevatorRepository;
+
     @Autowired
+    ElevatorInfoRepository elevatorInfoRepository;
+
     GeneralResponse generalResponse=new GeneralResponse();
 
     public ResponseEntity<?> addElevator(AddElevatorRequest addElevatorRequest){
 
         try{
 
-            //calling setUpElevator method to set up elevator using addElevatorRequest
+//            calling setUpElevator method to set up elevator using addElevatorRequest
             Elevator elevator=setUpElevator(addElevatorRequest);
               //saving elevator
-                elevatorRepository.save(elevator);
-                generalResponse.setStatus(HttpStatus.CREATED);
-                generalResponse.setDescription("Elevator added Successfully");
+               Elevator newElevator= elevatorRepository.save(elevator);
+            ElevatorInfo elevatorInfo=new ElevatorInfo();
+            elevatorInfo.setDirection("N/A");
+            elevatorInfo.setState("STOPPED");
+            elevatorInfo.setPlace(0);
+            elevatorInfo.setEventTime(LocalDateTime.now());
+            elevatorInfo.setElevator(newElevator);
+            elevatorInfoRepository.save(elevatorInfo);
+            generalResponse.setStatus(HttpStatus.CREATED);
+            generalResponse.setDescription("Elevator added Successfully");
                 return new ResponseEntity<>(generalResponse, HttpStatus.CREATED);
 
 

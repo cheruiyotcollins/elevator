@@ -6,17 +6,18 @@ import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.model.EventLog;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
-import com.ezra.elevator.repository.EventLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Service
 public class ElevatorInfoService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElevatorInfoService.class);
     @Autowired
     ElevatorInfoRepository elevatorInfoRepository;
     @Autowired
@@ -25,25 +26,40 @@ public class ElevatorInfoService {
     EventLogService eventLogService;
      GeneralResponse generalResponse=new GeneralResponse();
     public ResponseEntity<?> createOrUpdateElevatorInfo(UpdateElevatorInfoRequest updateElevatorInfoRequest){
-        if(!elevatorRepository.existsById(updateElevatorInfoRequest.getElevator_id())){
+        if(!elevatorRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
             generalResponse.setStatus(HttpStatus.NOT_FOUND);
             generalResponse.setDescription("No elevator found with provided id");
             return new ResponseEntity<>(generalResponse,HttpStatus.NOT_FOUND);
         }
-        if(elevatorInfoRepository.existsById(updateElevatorInfoRequest.getElevator_id())){
-            ElevatorInfo elevatorInfo= elevatorInfoRepository.findById(updateElevatorInfoRequest.getElevator_id()).get();
+        if(elevatorInfoRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
+            ElevatorInfo elevatorInfo= elevatorInfoRepository.findByElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevatorId()).get()).get();
             //Creating new event log
             EventLog eventLog=new EventLog();
             eventLog.setElevatorInfo(elevatorInfo);
             eventLog.setLogTime(LocalDateTime.now());
             //calling event log service to save  current even before updating
             eventLogService.addEventLog(eventLog);
-            //setting up and updating new elevator info
-            elevatorInfo.setDirection(updateElevatorInfoRequest.getDirection());
-            elevatorInfo.setState(updateElevatorInfoRequest.getState());
-            elevatorInfo.setPlace(updateElevatorInfoRequest.getPlace());
-            elevatorInfo.setEventTime(LocalDateTime.now());
-            elevatorInfoRepository.save(elevatorInfo);
+            //Calling the Elevator from its current position to the caller's position
+
+            if(elevatorInfo.getPlace()!=updateElevatorInfoRequest.getCallerPosition()){
+                //Calls Elevator if not in same floor
+                callElevator(updateElevatorInfoRequest,elevatorInfo);
+                //open door when Elevator Arrives
+                openDoor(elevatorInfo);
+                //take caller to destination
+                takeCallerToDestination(updateElevatorInfoRequest,elevatorInfo);
+
+
+            }
+
+            if(elevatorInfo.getPlace()==updateElevatorInfoRequest.getCallerPosition()){
+                //if elevator's is in the same floor as the caller
+                openDoor(elevatorInfo);
+                //take caller to destination
+                takeCallerToDestination(updateElevatorInfoRequest,elevatorInfo);
+            }
+
+
             generalResponse.setStatus(HttpStatus.CREATED);
             generalResponse.setDescription("Elevator Information updated successfully");
             return new ResponseEntity<>(generalResponse,HttpStatus.CREATED);
@@ -51,17 +67,80 @@ public class ElevatorInfoService {
         }
 
         ElevatorInfo elevatorInfo=new ElevatorInfo();
-        elevatorInfo.setDirection(updateElevatorInfoRequest.getDirection());
-        elevatorInfo.setState(updateElevatorInfoRequest.getState());
-        elevatorInfo.setPlace(updateElevatorInfoRequest.getPlace());
+        elevatorInfo.setDirection("N/A");
+        elevatorInfo.setState("STOPPED");
+        elevatorInfo.setPlace(0);
         elevatorInfo.setEventTime(LocalDateTime.now());
-        elevatorInfo.setElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevator_id()).get());
+        elevatorInfo.setElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevatorId()).get());
         elevatorInfoRepository.save(elevatorInfo);
 
         generalResponse.setStatus(HttpStatus.CREATED);
         generalResponse.setDescription("Elevator Information created successfully");
         return new ResponseEntity<>(generalResponse,HttpStatus.CREATED);
         }
+        public void openDoor(ElevatorInfo elevatorInfo){
+            try{
+                LOGGER.info(":::::::::::Elevator Door Opening:::::::::::");
+                elevatorInfo.setState("OPENING");
+                elevatorInfo.setDirection("STOPPED");
+                elevatorInfoRepository.save(elevatorInfo);
+                //Adding event to logs
+                EventLog eventLog=new EventLog();
+                eventLog.setElevatorInfo(elevatorInfo);
+                eventLog.setLogTime(LocalDateTime.now());
+                eventLogService.addEventLog(eventLog);
+
+                Thread.sleep(2000);
+            }catch(InterruptedException e){
+                System.out.println(e);}
+
+        }
+    public void callElevator(UpdateElevatorInfoRequest updateElevatorInfoRequest,ElevatorInfo elevatorInfo){
+        if(elevatorInfo.getPlace()< updateElevatorInfoRequest.getCallerPosition()){
+            LOGGER.info(":::::::::::Elevator Moving Up ^:::::::");
+            elevatorInfo.setState("MOVING");
+            elevatorInfo.setDirection("UP");
+        }else{
+            LOGGER.info(":::::::::::Elevator Moving Down v:::::::");
+            elevatorInfo.setState("MOVING");
+            elevatorInfo.setDirection("DOWN");
+        }
+        try{
+
+            elevatorInfoRepository.save(elevatorInfo);
+            //Adding event to logs
+            EventLog eventLog=new EventLog();
+            eventLog.setElevatorInfo(elevatorInfo);
+            eventLog.setLogTime(LocalDateTime.now());
+            eventLogService.addEventLog(eventLog);
+            Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()-elevatorInfo.getPlace())*1000));
+        }catch(InterruptedException e){System.out.println(e);}
+
+    }
+    public void takeCallerToDestination(UpdateElevatorInfoRequest updateElevatorInfoRequest,ElevatorInfo elevatorInfo){
+        if(updateElevatorInfoRequest.getDestination()> updateElevatorInfoRequest.getCallerPosition()){
+            LOGGER.info(":::::::::::Elevator Moving Up ^:::::::");
+            elevatorInfo.setState("MOVING");
+            elevatorInfo.setDirection("UP");
+        }else{
+            LOGGER.info(":::::::::::Elevator Moving Down v:::::::");
+            elevatorInfo.setState("MOVING");
+            elevatorInfo.setDirection("DOWN");
+        }
+       try{
+
+            elevatorInfoRepository.save(elevatorInfo);
+            Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()- updateElevatorInfoRequest.getDestination())*1000));
+           elevatorInfo.setDirection("N/A");
+           elevatorInfo.setState("STOPPED");
+           elevatorInfo.setPlace(updateElevatorInfoRequest.getDestination());
+           elevatorInfo.setEventTime(LocalDateTime.now());
+           elevatorInfoRepository.save(elevatorInfo);
+        }catch(InterruptedException e){System.out.println(e);}
+
+    }
+
+
 
     public ResponseEntity<?> findAll(){
 

@@ -25,9 +25,9 @@ public class Elevator {
     @NotEmpty
     private String manufacturer;
 
-    @NotEmpty
+
     private int maxNoOfPeople;
-    @NotEmpty
+
     private int maxLoadKg;
 
 

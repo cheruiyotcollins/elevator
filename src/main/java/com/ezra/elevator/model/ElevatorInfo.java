@@ -25,17 +25,17 @@ public class ElevatorInfo {
     private long id;
 
 
-    @NotEmpty
+
     private int place;
 
     @NotEmpty
     private String state;
     @NotEmpty
     private String direction;
-    @NotEmpty
+
     private LocalDateTime eventTime;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "elevator_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "elevatorId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Elevator elevator;

@@ -29,7 +29,7 @@ public class ElevatorSqlQuery {
 
      private String sqlQuery;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "elevator_id", nullable = false)
+    @JoinColumn(name = "elevatorId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private ElevatorInfo elevatorInfo;

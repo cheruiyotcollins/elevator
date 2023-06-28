@@ -26,7 +26,7 @@ public class EventLog {
     private LocalDateTime logTime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "elevator_id", nullable = false)
+    @JoinColumn(name = "elevatorId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private ElevatorInfo elevatorInfo;

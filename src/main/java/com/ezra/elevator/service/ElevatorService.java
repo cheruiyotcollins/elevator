@@ -34,7 +34,7 @@ public class ElevatorService {
             ElevatorInfo elevatorInfo=new ElevatorInfo();
             elevatorInfo.setDirection("N/A");
             elevatorInfo.setState("STOPPED");
-            elevatorInfo.setPlace(0);
+            elevatorInfo.setPostionFloorNo(0);
             elevatorInfo.setEventTime(LocalDateTime.now());
             elevatorInfo.setElevator(newElevator);
             elevatorInfoRepository.save(elevatorInfo);
@@ -105,9 +105,9 @@ public class ElevatorService {
     public ResponseEntity<?> deleteById(long id){
         if(elevatorRepository.existsById(id)){
             elevatorRepository.deleteById(id);
-            generalResponse.setStatus(HttpStatus.ACCEPTED);
+            generalResponse.setStatus(HttpStatus.OK);
             generalResponse.setDescription("elevator deleted successfully");
-            return new ResponseEntity<>(generalResponse, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(generalResponse, HttpStatus.OK);
         }
         generalResponse.setStatus(HttpStatus.NOT_FOUND);
         generalResponse.setDescription("elevator with provided id not found");

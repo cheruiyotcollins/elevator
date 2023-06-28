@@ -10,15 +10,15 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevator_info")
+
 @Entity
+@Table(name="elevator_info")
 public class ElevatorInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class ElevatorInfo {
 
 
 
-    private int place;
+    private int PostionFloorNo;
 
     @NotEmpty
     private String state;

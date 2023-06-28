@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevator_events_logs")
 @Entity
+@Table(name="elevator_events_logs")
 public class EventLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

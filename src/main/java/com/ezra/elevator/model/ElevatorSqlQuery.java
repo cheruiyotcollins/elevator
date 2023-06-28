@@ -15,8 +15,9 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevators_sql_queries")
 @Entity
+
+@Table(name="elevators_sql_queries")
 public class ElevatorSqlQuery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -41,7 +41,7 @@ public class ElevatorInfoService {
             eventLogService.addEventLog(eventLog);
             //Calling the Elevator from its current position to the caller's position
 
-            if(elevatorInfo.getPlace()!=updateElevatorInfoRequest.getCallerPosition()){
+            if(elevatorInfo.getPostionFloorNo()!=updateElevatorInfoRequest.getCallerPosition()){
                 //Calls Elevator if not in same floor
                 callElevator(updateElevatorInfoRequest,elevatorInfo);
                 //open door when Elevator Arrives
@@ -52,7 +52,7 @@ public class ElevatorInfoService {
 
             }
 
-            if(elevatorInfo.getPlace()==updateElevatorInfoRequest.getCallerPosition()){
+            if(elevatorInfo.getPostionFloorNo()==updateElevatorInfoRequest.getCallerPosition()){
                 //if elevator's is in the same floor as the caller
                 openDoor(elevatorInfo);
                 //take caller to destination
@@ -69,7 +69,7 @@ public class ElevatorInfoService {
         ElevatorInfo elevatorInfo=new ElevatorInfo();
         elevatorInfo.setDirection("N/A");
         elevatorInfo.setState("STOPPED");
-        elevatorInfo.setPlace(0);
+        elevatorInfo.setPostionFloorNo(0);
         elevatorInfo.setEventTime(LocalDateTime.now());
         elevatorInfo.setElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevatorId()).get());
         elevatorInfoRepository.save(elevatorInfo);
@@ -96,7 +96,7 @@ public class ElevatorInfoService {
 
         }
     public void callElevator(UpdateElevatorInfoRequest updateElevatorInfoRequest,ElevatorInfo elevatorInfo){
-        if(elevatorInfo.getPlace()< updateElevatorInfoRequest.getCallerPosition()){
+        if(elevatorInfo.getPostionFloorNo()< updateElevatorInfoRequest.getCallerPosition()){
             LOGGER.info(":::::::::::Elevator Moving Up ^:::::::");
             elevatorInfo.setState("MOVING");
             elevatorInfo.setDirection("UP");
@@ -113,7 +113,7 @@ public class ElevatorInfoService {
             eventLog.setElevatorInfo(elevatorInfo);
             eventLog.setLogTime(LocalDateTime.now());
             eventLogService.addEventLog(eventLog);
-            Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()-elevatorInfo.getPlace())*1000));
+            Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()-elevatorInfo.getPostionFloorNo())*1000));
         }catch(InterruptedException e){System.out.println(e);}
 
     }
@@ -133,7 +133,7 @@ public class ElevatorInfoService {
             Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()- updateElevatorInfoRequest.getDestination())*1000));
            elevatorInfo.setDirection("N/A");
            elevatorInfo.setState("STOPPED");
-           elevatorInfo.setPlace(updateElevatorInfoRequest.getDestination());
+           elevatorInfo.setPostionFloorNo(updateElevatorInfoRequest.getDestination());
            elevatorInfo.setEventTime(LocalDateTime.now());
            elevatorInfoRepository.save(elevatorInfo);
         }catch(InterruptedException e){System.out.println(e);}

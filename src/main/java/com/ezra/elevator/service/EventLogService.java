@@ -32,9 +32,9 @@ public class EventLogService {
     }
     public ResponseEntity<?> findAllEventsPerElevator(long elevatorId){
         if(!elevatorRepository.existsById(elevatorId)){
-            generalResponse.setStatus(HttpStatus.NOT_FOUND);
+            generalResponse.setStatus(HttpStatus.FOUND);
             generalResponse.setDescription("Elevator with that id not found");
-            return new ResponseEntity<>(generalResponse,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(generalResponse,HttpStatus.FOUND);
         }
         Elevator elevator=elevatorRepository.findById(elevatorId).get();
 
@@ -42,7 +42,7 @@ public class EventLogService {
 
         List<EventLog> eventLog=eventLogRepository.findByElevatorInfo(elevatorInfo);
 
-        return new ResponseEntity<>(eventLog, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(eventLog, HttpStatus.FOUND);
     }
     public ResponseEntity<?> findAllEventsPerLogId(long id){
         if(!eventLogRepository.existsById(id)){

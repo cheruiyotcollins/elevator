@@ -12,8 +12,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevators")
+
 @Entity
+@Table(name="elevators")
 public class Elevator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

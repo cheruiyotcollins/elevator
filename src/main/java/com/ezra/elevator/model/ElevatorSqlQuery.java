@@ -9,22 +9,25 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevator_events_logs")
+@Table(name="elevators_sql_queries")
 @Entity
-public class EventLog {
+public class ElevatorSqlQuery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private LocalDateTime logTime;
+     private int calledFrom;
+     private String whoCalled;
 
+     private LocalDateTime localDateTime;
+
+     private String sqlQuery;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "elevator_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

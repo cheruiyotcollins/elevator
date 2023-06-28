@@ -1,25 +1,16 @@
-package com.ezra.elevator.model;
+package com.ezra.elevator.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name="elevators")
-@Entity
-public class Elevator {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-
+@AllArgsConstructor
+public class AddElevatorRequest {
     @NotEmpty
     private String name;
     @NotEmpty
@@ -29,8 +20,4 @@ public class Elevator {
     private int maxNoOfPeople;
     @NotEmpty
     private int maxLoadKg;
-
-
-
-
 }

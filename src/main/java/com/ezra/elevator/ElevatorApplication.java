@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ElevetorApplication {
+public class ElevatorApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ElevetorApplication.class, args);
+		SpringApplication.run(ElevatorApplication.class, args);
 	}
 
 }

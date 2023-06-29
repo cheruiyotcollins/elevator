@@ -4,9 +4,11 @@ import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.dto.UpdateElevatorInfoRequest;
 import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.model.EventLog;
+import com.ezra.elevator.model.JpaSqlQuery;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
 import com.ezra.elevator.repository.EventLogRepository;
+import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -26,6 +28,8 @@ public class ElevatorInfoService {
     private final ElevatorInfoRepository elevatorInfoRepository;
     private final ElevatorRepository elevatorRepository;
     private final EventLogRepository eventLogRepository;
+    private final JpaSqlQueryRepository jpaSqlQueryRepository;
+    JpaSqlQuery jpaSqlQuery;
      ResponseDto generalResponse=new ResponseDto();
 
     @Value("${building-floors}")
@@ -147,6 +151,7 @@ public class ElevatorInfoService {
            elevatorInfo.setPostionFloorNo(updateElevatorInfoRequest.getDestination());
            elevatorInfo.setEventTime(LocalDateTime.now());
            elevatorInfoRepository.save(elevatorInfo);
+
         }catch(InterruptedException e){System.out.println(e);}
 
     }
@@ -154,14 +159,25 @@ public class ElevatorInfoService {
 
 
     public ResponseEntity<?> findAll(){
+        jpaSqlQuery=new JpaSqlQuery();
+        jpaSqlQuery.setSqlQuery("select * from elevator_info");
+        jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, findAll Method");
+        jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
+        jpaSqlQueryRepository.save(jpaSqlQuery);
 
 
         return new ResponseEntity<>(elevatorInfoRepository.findAll(), HttpStatus.FOUND);
 
 
+
     }
     public ResponseEntity<?> findById(long id){
         if(elevatorInfoRepository.existsById(id)){
+            jpaSqlQuery=new JpaSqlQuery();
+            jpaSqlQuery.setSqlQuery("select * from elevator_info where id="+id);
+            jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, findById Method");
+            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
+            jpaSqlQueryRepository.save(jpaSqlQuery);
             return new ResponseEntity<>(elevatorInfoRepository.findById(id).get(), HttpStatus.FOUND);
         }
         generalResponse.setStatus(HttpStatus.NOT_FOUND);
@@ -174,6 +190,11 @@ public class ElevatorInfoService {
     public ResponseEntity<?> deleteById(long id){
         if(elevatorInfoRepository.existsById(id)){
             elevatorInfoRepository.deleteById(id);
+            jpaSqlQuery=new JpaSqlQuery();
+            jpaSqlQuery.setSqlQuery("  delete from elevator_info where id="+id);
+            jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, deleteById Method");
+            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
+            jpaSqlQueryRepository.save(jpaSqlQuery);
             generalResponse.setStatus(HttpStatus.ACCEPTED);
             generalResponse.setDescription("elevator info deleted successfully");
             return new ResponseEntity<>(generalResponse, HttpStatus.ACCEPTED);

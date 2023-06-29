@@ -1,6 +1,7 @@
 package com.ezra.elevator.service;
 
 import com.ezra.elevator.dto.ResponseDto;
+import com.ezra.elevator.model.JpaSqlQuery;
 import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class JpaSqlQueryService {
     @Autowired
     JpaSqlQueryRepository jpaSqlQueryRepository;
     ResponseDto responseDto=new ResponseDto();
+
 
     public ResponseEntity<ResponseDto> findAllSQLQueries(){
 

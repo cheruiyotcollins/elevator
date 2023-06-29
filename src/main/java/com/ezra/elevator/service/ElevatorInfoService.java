@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,16 @@ public class ElevatorInfoService {
     private final ElevatorRepository elevatorRepository;
     private final EventLogRepository eventLogRepository;
      GeneralResponse generalResponse=new GeneralResponse();
+
+    @Value("${building-floors}")
+    private int noOfBuildingFloors;
     public ResponseEntity<?> createOrUpdateElevatorInfo(UpdateElevatorInfoRequest updateElevatorInfoRequest){
+       log.info("::::::Checking caller position and destination if its within building floors");
+       if(updateElevatorInfoRequest.getCallerPosition()>noOfBuildingFloors||updateElevatorInfoRequest.getDestination()>noOfBuildingFloors){
+           generalResponse.setStatus(HttpStatus.NOT_ACCEPTABLE);
+           generalResponse.setDescription("Caller's current position and destination should not be more than number of configured floors in a building");
+           return new ResponseEntity<>(generalResponse,HttpStatus.NOT_ACCEPTABLE);
+       }
         if(!elevatorRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
             generalResponse.setStatus(HttpStatus.NOT_FOUND);
             generalResponse.setDescription("No elevator found with provided id");

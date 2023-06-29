@@ -1,12 +1,13 @@
 package com.ezra.elevator.service;
 
 import com.ezra.elevator.dto.AddElevatorRequest;
-import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.dto.UpdateElevatorInfoRequest;
 import com.ezra.elevator.model.Elevator;
 import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
+import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import com.ezra.elevator.repository.EventLogRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,16 +37,18 @@ public class ElevatorInfoServiceTest {
     ElevatorRepository elevatorRepository;
     @MockBean
     EventLogRepository eventLogRepository;
+    @MockBean
+    JpaSqlQueryRepository jpaSqlQueryRepository;
 
     @Test
     public void testCreateElevatorInfoReturnsElevatorInfoExists() {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualCreateElevatorResult.hasBody());
-        GeneralResponse generalResponse= (GeneralResponse) actualCreateElevatorResult.getBody();
+        ResponseDto generalResponse= (ResponseDto) actualCreateElevatorResult.getBody();
         Object payloadResult = generalResponse.getPayload();
         assertEquals("Elevator added Successfully", generalResponse.getDescription());
         assertEquals(HttpStatus.CREATED, generalResponse.getStatus());
@@ -65,12 +68,12 @@ public class ElevatorInfoServiceTest {
         ElevatorInfoService elevatorInfoService = new ElevatorInfoService(elevatorInfoRepository,elevatorRepository,eventLogRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorInfoService.createOrUpdateElevatorInfo(
                 new UpdateElevatorInfoRequest(1,1,1L));
-        GeneralResponse generalResponse= (GeneralResponse) actualCreateElevatorResult.getBody();
+        ResponseDto generalResponse= (ResponseDto) actualCreateElevatorResult.getBody();
 
         assertEquals(HttpStatus.NOT_FOUND, generalResponse.getStatus());
 
         ResponseEntity<?> failResponse=elevatorInfoService.findById(100L);
-        GeneralResponse generalResponse1= (GeneralResponse) failResponse.getBody();
+        ResponseDto generalResponse1= (ResponseDto) failResponse.getBody();
         assertEquals("elevator info with provided id not found", generalResponse.getDescription());
         assertEquals(HttpStatus.NOT_FOUND, generalResponse.getStatus());
     }
@@ -82,7 +85,7 @@ public class ElevatorInfoServiceTest {
         PageImpl<ElevatorInfo> pageImpl = new PageImpl<>(content);
         ElevatorInfoRepository repository = mock(ElevatorInfoRepository.class);
         when(elevatorInfoRepository.findAll(Mockito.<Pageable>any())).thenReturn(pageImpl);
-        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class))).findAll();
+        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class), jpaSqlQueryRepository)).findAll();
         List<Object> generalResponse= (List<Object>) actualViewAllCardsResult.getBody();
 
 

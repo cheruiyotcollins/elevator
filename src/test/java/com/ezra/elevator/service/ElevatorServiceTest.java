@@ -2,10 +2,11 @@ package com.ezra.elevator.service;
 
 
 import com.ezra.elevator.dto.AddElevatorRequest;
-import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.model.Elevator;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
+import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 
@@ -33,16 +33,18 @@ public class ElevatorServiceTest {
 
     @MockBean
     ElevatorInfoRepository elevatorInfoRepository;
+    @MockBean
+    JpaSqlQueryRepository jpaSqlQueryRepository;
 
     @Test
     public void testCreateElevatorReturnsElevatorExists() {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualCreateElevatorResult.hasBody());
-        GeneralResponse generalResponse= (GeneralResponse) actualCreateElevatorResult.getBody();
+        ResponseDto generalResponse= (ResponseDto) actualCreateElevatorResult.getBody();
         Object payloadResult = generalResponse.getPayload();
         assertEquals("Elevator added Successfully", generalResponse.getDescription());
         assertEquals(HttpStatus.CREATED, generalResponse.getStatus());
@@ -59,15 +61,15 @@ public class ElevatorServiceTest {
     public void testViewElevatorFailsToFindAElevator() throws Exception {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
-        GeneralResponse generalResponse= (GeneralResponse) actualCreateElevatorResult.getBody();
+        ResponseDto generalResponse= (ResponseDto) actualCreateElevatorResult.getBody();
         assertEquals("Elevator added Successfully", generalResponse.getDescription());
         assertEquals(HttpStatus.CREATED, generalResponse.getStatus());
 
         ResponseEntity<?> failResponse=elevatorService.findById(100L);
-        GeneralResponse generalResponse1= (GeneralResponse) failResponse.getBody();
+        ResponseDto generalResponse1= (ResponseDto) failResponse.getBody();
         assertEquals("elevator with provided id not found", generalResponse.getDescription());
         assertEquals(HttpStatus.NOT_FOUND, generalResponse.getStatus());
     }
@@ -79,7 +81,7 @@ public class ElevatorServiceTest {
         PageImpl<Elevator> pageImpl = new PageImpl<>(content);
         ElevatorRepository repository = mock(ElevatorRepository.class);
         when(elevatorRepository.findAll(Mockito.<Pageable>any())).thenReturn(pageImpl);
-        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class))).findAll();
+        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class), jpaSqlQueryRepository)).findAll();
         List<Object> generalResponse= (List<Object>) actualViewAllCardsResult.getBody();
 
 

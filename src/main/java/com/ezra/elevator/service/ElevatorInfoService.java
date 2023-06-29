@@ -1,6 +1,6 @@
 package com.ezra.elevator.service;
 
-import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.dto.UpdateElevatorInfoRequest;
 import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.model.EventLog;
@@ -26,7 +26,7 @@ public class ElevatorInfoService {
     private final ElevatorInfoRepository elevatorInfoRepository;
     private final ElevatorRepository elevatorRepository;
     private final EventLogRepository eventLogRepository;
-     GeneralResponse generalResponse=new GeneralResponse();
+     ResponseDto generalResponse=new ResponseDto();
 
     @Value("${building-floors}")
     private int noOfBuildingFloors;

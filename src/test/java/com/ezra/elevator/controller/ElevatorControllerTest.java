@@ -1,10 +1,11 @@
 package com.ezra.elevator.controller;
 
 import com.ezra.elevator.dto.AddElevatorRequest;
-import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.model.Elevator;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
+import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import com.ezra.elevator.service.ElevatorService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,15 +30,17 @@ public class ElevatorControllerTest {
     ElevatorRepository elevatorRepository;
     @MockBean
     ElevatorInfoRepository elevatorInfoRepository;
+    @MockBean
+    JpaSqlQueryRepository jpaSqlQueryRepository;
     @Test
     public void testAddElevator(){
         when(elevatorRepository.save(Mockito.any())).thenReturn(new Elevator());
-        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository));
+        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository, jpaSqlQueryRepository));
         ResponseEntity<?> actualAddElevatorResult= elevatorController.addElevator(new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualAddElevatorResult.hasBody());
         assertTrue(actualAddElevatorResult.getHeaders().isEmpty());
         assertEquals(201, actualAddElevatorResult.getStatusCode().value());
-        GeneralResponse body = (GeneralResponse) actualAddElevatorResult.getBody();
+        ResponseDto body = (ResponseDto) actualAddElevatorResult.getBody();
          assertEquals(HttpStatus.CREATED, body.getStatus());
         Object payloadResult = body.getPayload();
         assertTrue(payloadResult instanceof Elevator);
@@ -54,7 +57,7 @@ public class ElevatorControllerTest {
     @Test
     void testFindById() {
 
-        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository));
+        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository, jpaSqlQueryRepository));
 
         ResponseEntity<?> actualAddElevatorResult= elevatorController.findById(0L);
         assertTrue(actualAddElevatorResult.hasBody());
@@ -69,7 +72,7 @@ public class ElevatorControllerTest {
         Elevator card = new Elevator();
         elevators.add(card);
         when(elevatorRepository.findAll()).thenReturn(elevators);
-        ResponseEntity<?> actualViewAllResult = (new ElevatorController(new ElevatorService(elevatorRepository, elevatorInfoRepository))).findAll();
+        ResponseEntity<?> actualViewAllResult = (new ElevatorController(new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository))).findAll();
         assertTrue(actualViewAllResult.hasBody());
         assertTrue(actualViewAllResult.getHeaders().isEmpty());
         assertEquals(302, actualViewAllResult.getStatusCode().value());

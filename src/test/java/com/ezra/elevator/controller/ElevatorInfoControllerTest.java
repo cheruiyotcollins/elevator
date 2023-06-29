@@ -1,7 +1,7 @@
 package com.ezra.elevator.controller;
 
 
-import com.ezra.elevator.dto.GeneralResponse;
+import com.ezra.elevator.dto.ResponseDto;
 import com.ezra.elevator.dto.UpdateElevatorInfoRequest;
 import com.ezra.elevator.model.Elevator;
 import com.ezra.elevator.model.ElevatorInfo;
@@ -41,7 +41,7 @@ public class ElevatorInfoControllerTest {
         assertTrue(actualAddElevatorInfoResult.hasBody());
         assertTrue(actualAddElevatorInfoResult.getHeaders().isEmpty());
         assertEquals(404, actualAddElevatorInfoResult.getStatusCode().value());
-        GeneralResponse body = (GeneralResponse) actualAddElevatorInfoResult.getBody();
+        ResponseDto body = (ResponseDto) actualAddElevatorInfoResult.getBody();
         assertEquals(HttpStatus.NOT_FOUND, body.getStatus());
         Object payloadResult = body.getPayload();
 

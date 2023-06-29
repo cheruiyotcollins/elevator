@@ -17,23 +17,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 
-@Table(name="elevators_sql_queries")
-public class ElevatorSqlQuery {
+@Table(name="jpa_sql_queries")
+public class JpaSqlQuery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-     private int calledFrom;
-     private String whoCalled;
-
+     private String calledFrom;
      private LocalDateTime localDateTime;
 
      private String sqlQuery;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "elevatorId", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private ElevatorInfo elevatorInfo;
+
 
 
 }

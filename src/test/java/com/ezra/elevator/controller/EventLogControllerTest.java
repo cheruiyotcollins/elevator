@@ -18,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig

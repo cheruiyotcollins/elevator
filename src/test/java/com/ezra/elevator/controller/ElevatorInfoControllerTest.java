@@ -1,7 +1,6 @@
 package com.ezra.elevator.controller;
 
 
-import com.ezra.elevator.dto.AddElevatorRequest;
 import com.ezra.elevator.dto.GeneralResponse;
 import com.ezra.elevator.dto.UpdateElevatorInfoRequest;
 import com.ezra.elevator.model.Elevator;
@@ -10,8 +9,6 @@ import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
 import com.ezra.elevator.repository.EventLogRepository;
 import com.ezra.elevator.service.ElevatorInfoService;
-import com.ezra.elevator.service.ElevatorService;
-import com.ezra.elevator.service.EventLogService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,9 +19,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig

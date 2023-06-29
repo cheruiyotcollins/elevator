@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 
 
 @SpringJUnitConfig
+
 @SpringBootTest
 public class ElevatorControllerTest {
     @MockBean

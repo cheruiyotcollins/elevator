@@ -21,8 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EventLogController {
 
-    @Autowired
-    EventLogService eventLogService;
+    private final EventLogService eventLogService;
 
 
     @Operation(summary = "List All  Elevator Info Logs")

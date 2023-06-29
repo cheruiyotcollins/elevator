@@ -6,11 +6,11 @@ import com.ezra.elevator.model.ElevatorInfo;
 import com.ezra.elevator.model.EventLog;
 import com.ezra.elevator.repository.ElevatorInfoRepository;
 import com.ezra.elevator.repository.ElevatorRepository;
+import com.ezra.elevator.repository.EventLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ElevatorInfoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElevatorInfoService.class);
-    @Autowired
-    ElevatorInfoRepository elevatorInfoRepository;
-    @Autowired
-    ElevatorRepository elevatorRepository;
-    @Autowired
-    EventLogService eventLogService;
+    private final ElevatorInfoRepository elevatorInfoRepository;
+    private final ElevatorRepository elevatorRepository;
+    private final EventLogRepository eventLogRepository;
      GeneralResponse generalResponse=new GeneralResponse();
     public ResponseEntity<?> createOrUpdateElevatorInfo(UpdateElevatorInfoRequest updateElevatorInfoRequest){
         if(!elevatorRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
@@ -42,7 +39,7 @@ public class ElevatorInfoService {
             eventLog.setElevatorInfo(elevatorInfo);
             eventLog.setLogTime(LocalDateTime.now());
             //calling event log service to save  current even before updating
-            eventLogService.addEventLog(eventLog);
+            eventLogRepository.save(eventLog);
             //Calling the Elevator from its current position to the caller's position
 
             if(elevatorInfo.getPostionFloorNo()!=updateElevatorInfoRequest.getCallerPosition()){
@@ -92,7 +89,7 @@ public class ElevatorInfoService {
                 EventLog eventLog=new EventLog();
                 eventLog.setElevatorInfo(elevatorInfo);
                 eventLog.setLogTime(LocalDateTime.now());
-                eventLogService.addEventLog(eventLog);
+                eventLogRepository.save(eventLog);
 
                 Thread.sleep(2000);
             }catch(InterruptedException e){
@@ -116,7 +113,7 @@ public class ElevatorInfoService {
             EventLog eventLog=new EventLog();
             eventLog.setElevatorInfo(elevatorInfo);
             eventLog.setLogTime(LocalDateTime.now());
-            eventLogService.addEventLog(eventLog);
+            eventLogRepository.save(eventLog);
             Thread.sleep((Math.abs(updateElevatorInfoRequest.getCallerPosition()-elevatorInfo.getPostionFloorNo())*1000));
         }catch(InterruptedException e){System.out.println(e);}
 

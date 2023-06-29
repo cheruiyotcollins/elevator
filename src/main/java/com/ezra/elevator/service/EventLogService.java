@@ -20,19 +20,21 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class EventLogService {
-    @Autowired
-    EventLogRepository eventLogRepository;
-    @Autowired
-    ElevatorInfoRepository elevatorInfoRepository;
-    @Autowired
-    ElevatorRepository elevatorRepository;
+
+
+    private final ElevatorInfoRepository elevatorInfoRepository;
+
+    private final ElevatorRepository elevatorRepository;
+
+    private final EventLogRepository eventLogRepository;
+
     GeneralResponse generalResponse= new GeneralResponse();
 
     public void addEventLog(EventLog  eventLog){
         eventLogRepository.save(eventLog);
     }
     public ResponseEntity<?> findAllEvents(){
-        return new ResponseEntity<>(eventLogRepository.findAll(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(eventLogRepository.findAll(), HttpStatus.FOUND);
     }
     public ResponseEntity<?> findAllEventsPerElevator(long elevatorId){
         if(!elevatorRepository.existsById(elevatorId)){

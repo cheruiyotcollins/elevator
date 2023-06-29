@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 public class ElevatorInfoController {
-
-    @Autowired
-    ElevatorInfoService elevatorInfoService;
+    private final ElevatorInfoService elevatorInfoService;
     @Operation(summary = "Add Elevator information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Elevator information Added Successfully",

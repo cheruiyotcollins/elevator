@@ -33,14 +33,13 @@ public class ElevatorServiceTest {
 
     @MockBean
     ElevatorInfoRepository elevatorInfoRepository;
-    @MockBean
-    JpaSqlQueryRepository jpaSqlQueryRepository;
+
 
     @Test
     public void testCreateElevatorReturnsElevatorExists() {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualCreateElevatorResult.hasBody());
@@ -61,7 +60,7 @@ public class ElevatorServiceTest {
     public void testViewElevatorFailsToFindAElevator() throws Exception {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         ResponseDto generalResponse= (ResponseDto) actualCreateElevatorResult.getBody();
@@ -81,7 +80,7 @@ public class ElevatorServiceTest {
         PageImpl<Elevator> pageImpl = new PageImpl<>(content);
         ElevatorRepository repository = mock(ElevatorRepository.class);
         when(elevatorRepository.findAll(Mockito.<Pageable>any())).thenReturn(pageImpl);
-        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class), jpaSqlQueryRepository)).findAll();
+        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class))).findAll();
         List<Object> generalResponse= (List<Object>) actualViewAllCardsResult.getBody();
 
 

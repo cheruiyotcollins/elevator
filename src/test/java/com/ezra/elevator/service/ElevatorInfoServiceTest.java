@@ -37,14 +37,13 @@ public class ElevatorInfoServiceTest {
     ElevatorRepository elevatorRepository;
     @MockBean
     EventLogRepository eventLogRepository;
-    @MockBean
-    JpaSqlQueryRepository jpaSqlQueryRepository;
+
 
     @Test
     public void testCreateElevatorInfoReturnsElevatorInfoExists() {
         Elevator elevator = new Elevator();
         when(elevatorRepository.findById(Mockito.any())).thenReturn(Optional.of(elevator));
-        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository);
+        ElevatorService elevatorService = new ElevatorService(elevatorRepository, elevatorInfoRepository);
         ResponseEntity<?> actualCreateElevatorResult = elevatorService.addElevator(
                 new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualCreateElevatorResult.hasBody());
@@ -85,7 +84,7 @@ public class ElevatorInfoServiceTest {
         PageImpl<ElevatorInfo> pageImpl = new PageImpl<>(content);
         ElevatorInfoRepository repository = mock(ElevatorInfoRepository.class);
         when(elevatorInfoRepository.findAll(Mockito.<Pageable>any())).thenReturn(pageImpl);
-        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class), jpaSqlQueryRepository)).findAll();
+        ResponseEntity<?> actualViewAllCardsResult = (new ElevatorService(elevatorRepository, mock(ElevatorInfoRepository.class))).findAll();
         List<Object> generalResponse= (List<Object>) actualViewAllCardsResult.getBody();
 
 

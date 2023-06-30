@@ -30,12 +30,11 @@ public class ElevatorControllerTest {
     ElevatorRepository elevatorRepository;
     @MockBean
     ElevatorInfoRepository elevatorInfoRepository;
-    @MockBean
-    JpaSqlQueryRepository jpaSqlQueryRepository;
+
     @Test
     public void testAddElevator(){
         when(elevatorRepository.save(Mockito.any())).thenReturn(new Elevator());
-        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository, jpaSqlQueryRepository));
+        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository));
         ResponseEntity<?> actualAddElevatorResult= elevatorController.addElevator(new AddElevatorRequest("Elevator Name","Manufacturer Name",1,1));
         assertTrue(actualAddElevatorResult.hasBody());
         assertTrue(actualAddElevatorResult.getHeaders().isEmpty());
@@ -57,7 +56,7 @@ public class ElevatorControllerTest {
     @Test
     void testFindById() {
 
-        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository, jpaSqlQueryRepository));
+        ElevatorController elevatorController=new ElevatorController(new ElevatorService(elevatorRepository,elevatorInfoRepository));
 
         ResponseEntity<?> actualAddElevatorResult= elevatorController.findById(0L);
         assertTrue(actualAddElevatorResult.hasBody());
@@ -72,7 +71,7 @@ public class ElevatorControllerTest {
         Elevator card = new Elevator();
         elevators.add(card);
         when(elevatorRepository.findAll()).thenReturn(elevators);
-        ResponseEntity<?> actualViewAllResult = (new ElevatorController(new ElevatorService(elevatorRepository, elevatorInfoRepository, jpaSqlQueryRepository))).findAll();
+        ResponseEntity<?> actualViewAllResult = (new ElevatorController(new ElevatorService(elevatorRepository, elevatorInfoRepository))).findAll();
         assertTrue(actualViewAllResult.hasBody());
         assertTrue(actualViewAllResult.getHeaders().isEmpty());
         assertEquals(302, actualViewAllResult.getStatusCode().value());

@@ -12,6 +12,7 @@ import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,11 @@ public class ElevatorService {
 
 
     private final ElevatorInfoRepository elevatorInfoRepository;
-    private final JpaSqlQueryRepository jpaSqlQueryRepository;
+    @Autowired
+    JpaSqlQueryService jpaSqlQueryService;
 
 
     ResponseDto responseDto = new ResponseDto();
-    JpaSqlQuery jpaSqlQuery;
 
     @Transactional
     public ResponseEntity<?> addElevator(AddElevatorRequest addElevatorRequest){
@@ -42,14 +43,8 @@ public class ElevatorService {
             Elevator elevator=setUpElevator(addElevatorRequest);
             //saving elevator
             Elevator newElevator= elevatorRepository.save(elevator);
-             jpaSqlQuery=new JpaSqlQuery();
             log.info("setting up sql query performed by JPA On DB");
-
-            jpaSqlQuery.setSqlQuery(setAddElevatorQuery(elevator));
-            jpaSqlQuery.setCalledFrom("Service Class, Add Controller Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
-
+           jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, Add Elevator Method",setAddElevatorQuery(elevator));
 
             log.info("initializing initial elevator information");
             ElevatorInfo elevatorInfo=new ElevatorInfo();
@@ -75,11 +70,8 @@ public class ElevatorService {
             addElevatorInfoSql.append(")");
             //setting up and calling JpaSqlQueryService
 
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery(setAddElevatorQuery(elevator));
-            jpaSqlQuery.setCalledFrom("Service Class, Add Controller Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
+            jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, Add Elevator Method",setAddElevatorQuery(elevator));
+
 
             responseDto.setPayload(elevator);
             responseDto.setStatus(HttpStatus.CREATED);
@@ -106,11 +98,8 @@ public class ElevatorService {
             elevator.setId(id);
             //saving elevator
             elevatorRepository.save(elevator);
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery(setAddElevatorQuery(elevator));
-            jpaSqlQuery.setCalledFrom("Service Class, update Elevator Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
+            jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, update Elevator Method",setAddElevatorQuery(elevator));
+
             responseDto.setStatus(HttpStatus.CREATED);
             responseDto.setDescription("Elevator updated Successfully");
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -151,23 +140,15 @@ public class ElevatorService {
 
     }
     public ResponseEntity<?> findAll(){
-        jpaSqlQuery=new JpaSqlQuery();
-        jpaSqlQuery.setSqlQuery("select * from elevator_info");
-        jpaSqlQuery.setCalledFrom("Service Class, findAll Method");
-        jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-        jpaSqlQueryRepository.save(jpaSqlQuery);
-
+      jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, findAll Method","select * from elevator_info");
         return new ResponseEntity<>(elevatorRepository.findAll(), HttpStatus.FOUND);
 
 
     }
     public ResponseEntity<?> findById(long id){
         if(elevatorRepository.existsById(id)){
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery("select * from elevator_info where id="+id);
-            jpaSqlQuery.setCalledFrom("Service Class, findById Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
+           jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, findById Method","select * from elevator_info where id="+id);
+
             return new ResponseEntity<>(elevatorRepository.findById(id).get(), HttpStatus.FOUND);
         }
         responseDto.setStatus(HttpStatus.NOT_FOUND);
@@ -179,11 +160,7 @@ public class ElevatorService {
     }
     public ResponseEntity<?> deleteById(long id){
         if(elevatorRepository.existsById(id)){
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery("  delete from elevators where id="+id);
-            jpaSqlQuery.setCalledFrom("Service Class, deleteById Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
+            jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorService.Class, deleteById Method","delete from elevators where id="+id);
             elevatorRepository.deleteById(id);
             responseDto.setStatus(HttpStatus.OK);
             responseDto.setDescription("elevator deleted successfully");

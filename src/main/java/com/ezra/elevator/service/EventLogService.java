@@ -11,6 +11,7 @@ import com.ezra.elevator.repository.EventLogRepository;
 import com.ezra.elevator.repository.JpaSqlQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,21 +30,19 @@ public class EventLogService {
     private final ElevatorRepository elevatorRepository;
 
     private final EventLogRepository eventLogRepository;
-    private final JpaSqlQueryRepository jpaSqlQueryRepository;
+
+    @Autowired
+    JpaSqlQueryService jpaSqlQueryService;
 
     ResponseDto responseDto = new ResponseDto();
 
-    JpaSqlQuery jpaSqlQuery;
+
 
     public void addEventLog(EventLog  eventLog){
         eventLogRepository.save(eventLog);
     }
     public ResponseEntity<?> findAllEvents(){
-        jpaSqlQuery=new JpaSqlQuery();
-        jpaSqlQuery.setSqlQuery("select * from elevator_events_logs");
-        jpaSqlQuery.setCalledFrom("EventLogService.Class, findAllEvents Method");
-        jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-        jpaSqlQueryRepository.save(jpaSqlQuery);
+       jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"EventLogService.Class, findAllEvents Method","select * from elevator_events_logs");
         return new ResponseEntity<>(eventLogRepository.findAll(), HttpStatus.FOUND);
     }
     public ResponseEntity<?> findAllEventsPerElevator(long elevatorId){
@@ -66,11 +65,9 @@ public class EventLogService {
             responseDto.setDescription("Event log with provided id not found");
             return new ResponseEntity<>(responseDto,HttpStatus.NOT_FOUND);
         }
-        jpaSqlQuery=new JpaSqlQuery();
-        jpaSqlQuery.setSqlQuery("select * from elevator_events_logs where id="+id);
-        jpaSqlQuery.setCalledFrom("EventLogService.class, findAllEventsPerLogId Method");
-        jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-        jpaSqlQueryRepository.save(jpaSqlQuery);
+
+        jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"EventLogService.class, findAllEventsPerLogId Method","select * from elevator_events_logs where id="+id);
+
 
 
         return new ResponseEntity<>(eventLogRepository.findById(id), HttpStatus.FOUND);

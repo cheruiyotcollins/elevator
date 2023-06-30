@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,23 +29,23 @@ public class ElevatorInfoService {
     private final ElevatorInfoRepository elevatorInfoRepository;
     private final ElevatorRepository elevatorRepository;
     private final EventLogRepository eventLogRepository;
-    private final JpaSqlQueryRepository jpaSqlQueryRepository;
-    JpaSqlQuery jpaSqlQuery;
-     ResponseDto generalResponse=new ResponseDto();
+    @Autowired
+    JpaSqlQueryService jpaSqlQueryService;
+     ResponseDto responseDto =new ResponseDto();
 
     @Value("${building-floors}")
     private int noOfBuildingFloors;
     public ResponseEntity<?> createOrUpdateElevatorInfo(UpdateElevatorInfoRequest updateElevatorInfoRequest){
        log.info("::::::Checking caller position and destination if its within building floors");
        if(updateElevatorInfoRequest.getCallerPosition()>noOfBuildingFloors||updateElevatorInfoRequest.getDestination()>noOfBuildingFloors){
-           generalResponse.setStatus(HttpStatus.NOT_ACCEPTABLE);
-           generalResponse.setDescription("Caller's current position and destination should not be more than number of configured floors in a building");
-           return new ResponseEntity<>(generalResponse,HttpStatus.NOT_ACCEPTABLE);
+           responseDto.setStatus(HttpStatus.NOT_ACCEPTABLE);
+           responseDto.setDescription("Caller's current position and destination should not be more than number of configured floors in a building");
+           return new ResponseEntity<>(responseDto,HttpStatus.NOT_ACCEPTABLE);
        }
         if(!elevatorRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
-            generalResponse.setStatus(HttpStatus.NOT_FOUND);
-            generalResponse.setDescription("No elevator found with provided id");
-            return new ResponseEntity<>(generalResponse,HttpStatus.NOT_FOUND);
+            responseDto.setStatus(HttpStatus.NOT_FOUND);
+            responseDto.setDescription("No elevator found with provided id");
+            return new ResponseEntity<>(responseDto,HttpStatus.NOT_FOUND);
         }
         if(elevatorInfoRepository.existsById(updateElevatorInfoRequest.getElevatorId())){
             ElevatorInfo elevatorInfo= elevatorInfoRepository.findByElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevatorId()).get()).get();
@@ -75,9 +76,9 @@ public class ElevatorInfoService {
             }
 
 
-            generalResponse.setStatus(HttpStatus.CREATED);
-            generalResponse.setDescription("Elevator Information updated successfully");
-            return new ResponseEntity<>(generalResponse,HttpStatus.CREATED);
+            responseDto.setStatus(HttpStatus.CREATED);
+            responseDto.setDescription("Elevator Information updated successfully");
+            return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
 
         }
 
@@ -89,9 +90,9 @@ public class ElevatorInfoService {
         elevatorInfo.setElevator(elevatorRepository.findById(updateElevatorInfoRequest.getElevatorId()).get());
         elevatorInfoRepository.save(elevatorInfo);
 
-        generalResponse.setStatus(HttpStatus.CREATED);
-        generalResponse.setDescription("Elevator Information created successfully");
-        return new ResponseEntity<>(generalResponse,HttpStatus.CREATED);
+        responseDto.setStatus(HttpStatus.CREATED);
+        responseDto.setDescription("Elevator Information created successfully");
+        return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
         }
         public void openDoor(ElevatorInfo elevatorInfo){
             try{
@@ -159,11 +160,8 @@ public class ElevatorInfoService {
 
 
     public ResponseEntity<?> findAll(){
-        jpaSqlQuery=new JpaSqlQuery();
-        jpaSqlQuery.setSqlQuery("select * from elevator_info");
-        jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, findAll Method");
-        jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-        jpaSqlQueryRepository.save(jpaSqlQuery);
+
+        jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorInfoService.Class, findAll Method","select * from elevator_info");
 
 
         return new ResponseEntity<>(elevatorInfoRepository.findAll(), HttpStatus.FOUND);
@@ -173,36 +171,32 @@ public class ElevatorInfoService {
     }
     public ResponseEntity<?> findById(long id){
         if(elevatorInfoRepository.existsById(id)){
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery("select * from elevator_info where id="+id);
-            jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, findById Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
+
+            jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorInfoService.Class, findById Method","select * from elevator_info where id="+id);
+
             return new ResponseEntity<>(elevatorInfoRepository.findById(id).get(), HttpStatus.FOUND);
         }
-        generalResponse.setStatus(HttpStatus.NOT_FOUND);
-        generalResponse.setDescription("elevator info with provided id not found");
+        responseDto.setStatus(HttpStatus.NOT_FOUND);
+        responseDto.setDescription("elevator info with provided id not found");
 
-        return new ResponseEntity<>(generalResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
 
 
     }
     public ResponseEntity<?> deleteById(long id){
         if(elevatorInfoRepository.existsById(id)){
             elevatorInfoRepository.deleteById(id);
-            jpaSqlQuery=new JpaSqlQuery();
-            jpaSqlQuery.setSqlQuery("  delete from elevator_info where id="+id);
-            jpaSqlQuery.setCalledFrom("ElevatorInfoRepository.class, deleteById Method");
-            jpaSqlQuery.setLocalDateTime(LocalDateTime.now());
-            jpaSqlQueryRepository.save(jpaSqlQuery);
-            generalResponse.setStatus(HttpStatus.ACCEPTED);
-            generalResponse.setDescription("elevator info deleted successfully");
-            return new ResponseEntity<>(generalResponse, HttpStatus.ACCEPTED);
-        }
-        generalResponse.setStatus(HttpStatus.NOT_FOUND);
-        generalResponse.setDescription("elevator  info with provided id not found");
 
-        return new ResponseEntity<>(generalResponse, HttpStatus.NOT_FOUND);
+            jpaSqlQueryService.saveJpaQuery(LocalDateTime.now(),"ElevatorInfoService.Class, deleteById Method","delete from elevator_info where id="+id);
+
+            responseDto.setStatus(HttpStatus.ACCEPTED);
+            responseDto.setDescription("elevator info deleted successfully");
+            return new ResponseEntity<>(responseDto, HttpStatus.ACCEPTED);
+        }
+        responseDto.setStatus(HttpStatus.NOT_FOUND);
+        responseDto.setDescription("elevator  info with provided id not found");
+
+        return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
 
 
     }
